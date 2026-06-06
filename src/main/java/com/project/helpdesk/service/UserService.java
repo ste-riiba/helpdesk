@@ -169,6 +169,31 @@ public class UserService {
         return toResponse(updated);
     }
 
+    public void deleteMe() {
+        User current = currentUserService.getCurrentUser();
+
+        if (current.getRole() != UserRole.CUSTOMER) {
+            throw new ForbiddenActionException("You can't delete yourself");
+        }
+
+        userRepository.delete(current);
+    }
+
+    public void deleteUserById(Integer id) {
+        validateId(id);
+
+        User current = currentUserService.getCurrentUser();
+
+        if (current.getRole() != UserRole.ADMIN) {
+            throw new ForbiddenActionException("You don't have permission to complete this action");
+        }
+
+        User existing = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + id));
+
+        userRepository.deleteById(id);
+    }
+
     //    Helpers
     private User toEntity(UserCreateRequest request, String email) {
         return User.builder()

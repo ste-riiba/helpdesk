@@ -47,12 +47,12 @@ public class CommentService {
         return toResponse(existing);
     }
 
-    public CommentResponse create(CommentCreateRequest request) {
+    public CommentResponse create(Integer ticketId, CommentCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("CommentCreateRequest can't be null");
         }
 
-        Comment comment = commentRepository.save(toEntity(request));
+        Comment comment = commentRepository.save(toEntity(ticketId, request));
 
         return toResponse(comment);
     }
@@ -86,7 +86,7 @@ public class CommentService {
     public List<CommentResponse> findAllByTicketId(Integer id) {
         validateId(id);
 
-        ticketRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("TicketService not found with ID: " + id));
+        ticketRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Ticket not found with ID: " + id));
 
         List<Comment> comments = commentRepository.findAllByTicket_Id(id);
 
@@ -119,9 +119,9 @@ public class CommentService {
     }
 
     //    Helpers
-    private Comment toEntity(CommentCreateRequest request) {
-        Ticket ticket = ticketRepository.findById(request.ticketId())
-                .orElseThrow(() -> new EntityNotFoundException("Ticket not found with ID: " + request.ticketId()));
+    private Comment toEntity(Integer ticketId, CommentCreateRequest request) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found with ID: " + ticketId));
 
         User author = currentUserService.getCurrentUser();
         return Comment.builder().content(request.content()).ticket(ticket).author(author).build();
