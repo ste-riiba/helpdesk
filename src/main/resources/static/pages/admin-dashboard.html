@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk - Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="app-page admin-page">
+<header class="app-header">
+    <a class="brand-link" href="../index.html" aria-label="Helpdesk home">
+        <span class="brand-mark" aria-hidden="true">H</span>
+        <span>
+            <span class="eyebrow">Helpdesk</span>
+            <strong>Admin Console</strong>
+        </span>
+    </a>
+
+    <nav class="top-nav" aria-label="Navigazione admin">
+        <a href="#overview">Overview</a>
+        <a href="#tickets">Ticket</a>
+        <a href="#users">Utenti</a>
+        <a href="#activity">Attivita</a>
+    </nav>
+
+    <a class="ghost-button logout-btn" href="login.html">Logout</a>
+</header>
+<script>
+    if (!sessionStorage.getItem("token") || sessionStorage.getItem("userRole") !== "ADMIN") {
+        window.location.replace("/index.html")
+    }
+
+    document.querySelector(".logout-btn")?.addEventListener("click", (event) => {
+        event.preventDefault();
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("userEmail");
+        sessionStorage.removeItem("userRole");
+        window.location.replace("/pages/login.html");
+    });
+</script>
+
+<main class="home-shell admin-shell">
+    <section class="admin-hero" id="overview" aria-labelledby="admin-title">
+        <div class="admin-hero-copy">
+            <p class="eyebrow">Pannello amministratore</p>
+            <h1 id="admin-title">Controllo rapido su ticket, utenti e carico operativo.</h1>
+            <p>
+                Monitora le priorita, assegna il lavoro e tieni sotto controllo lo stato del supporto da una vista
+                unica.
+            </p>
+        </div>
+
+        <div class="admin-actions" aria-label="Azioni rapide">
+            <a class="primary-button button-link" href="#tickets">Gestisci ticket</a>
+            <a class="secondary-button" href="#users">Gestisci utenti</a>
+        </div>
+    </section>
+
+    <section class="admin-stats" aria-label="Metriche principali">
+        <article class="stat-card">
+            <span class="stat-label">Ticket aperti</span>
+            <strong>18</strong>
+            <span class="stat-trend">+4 da ieri</span>
+        </article>
+
+        <article class="stat-card">
+            <span class="stat-label">In lavorazione</span>
+            <strong>11</strong>
+            <span class="stat-trend good">72% assegnati</span>
+        </article>
+
+        <article class="stat-card">
+            <span class="stat-label">Utenti attivi</span>
+            <strong>42</strong>
+            <span class="stat-trend">3 nuovi questa settimana</span>
+        </article>
+
+        <article class="stat-card">
+            <span class="stat-label">SLA medio</span>
+            <strong>6h</strong>
+            <span class="stat-trend good">entro target</span>
+        </article>
+    </section>
+
+    <section class="admin-grid">
+        <section class="admin-panel admin-panel-large" id="tickets" aria-labelledby="admin-ticket-title">
+            <div class="section-heading">
+                <p class="eyebrow">Coda supporto</p>
+                <h2 id="admin-ticket-title">Ticket da gestire</h2>
+                <p>Vista sintetica per priorita, stato e assegnazione.</p>
+            </div>
+
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Ticket</th>
+                        <th>Categoria</th>
+                        <th>Priorita</th>
+                        <th>Stato</th>
+                        <th>Assegnato</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <strong>#1042 VPN non raggiungibile</strong>
+                            <span>Mario Rossi</span>
+                        </td>
+                        <td>Network</td>
+                        <td><span class="pill pill-priority">Urgente</span></td>
+                        <td><span class="pill pill-status">Aperto</span></td>
+                        <td>Non assegnato</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>#1038 Reset MFA</strong>
+                            <span>Giulia Bianchi</span>
+                        </td>
+                        <td>Account</td>
+                        <td><span class="pill pill-priority">Alta</span></td>
+                        <td><span class="pill pill-status">In lavorazione</span></td>
+                        <td>Luca Ferri</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>#1031 Installazione software</strong>
+                            <span>Elena Neri</span>
+                        </td>
+                        <td>Software</td>
+                        <td><span class="pill">Media</span></td>
+                        <td><span class="pill pill-status">In attesa</span></td>
+                        <td>Sara Conte</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <aside class="admin-panel" id="users" aria-labelledby="admin-users-title">
+            <div class="section-heading compact">
+                <p class="eyebrow">Utenti</p>
+                <h2 id="admin-users-title">Gestione account</h2>
+            </div>
+
+            <div class="user-stack">
+                <article class="user-row">
+                    <span class="user-avatar">AR</span>
+                    <div>
+                        <strong>Admin Rossi</strong>
+                        <span>ADMIN · Attivo</span>
+                    </div>
+                </article>
+
+                <article class="user-row">
+                    <span class="user-avatar">LF</span>
+                    <div>
+                        <strong>Luca Ferri</strong>
+                        <span>AGENT · Attivo</span>
+                    </div>
+                </article>
+
+                <article class="user-row">
+                    <span class="user-avatar muted">MB</span>
+                    <div>
+                        <strong>Marco Blu</strong>
+                        <span>USER · Disabilitato</span>
+                    </div>
+                </article>
+            </div>
+
+            <a class="secondary-button admin-full-button" href="#users">Nuovo utente</a>
+        </aside>
+    </section>
+
+    <section class="admin-panel" id="activity" aria-labelledby="admin-activity-title">
+        <div class="section-heading">
+            <p class="eyebrow">Attivita recenti</p>
+            <h2 id="admin-activity-title">Ultimi aggiornamenti</h2>
+            <p>Una timeline compatta per seguire assegnazioni, chiusure e cambi di stato.</p>
+        </div>
+
+        <ol class="activity-list">
+            <li>
+                <span class="activity-dot"></span>
+                <div>
+                    <strong>Ticket #1038 assegnato a Luca Ferri</strong>
+                    <span>2 minuti fa</span>
+                </div>
+            </li>
+            <li>
+                <span class="activity-dot"></span>
+                <div>
+                    <strong>Nuovo utente creato: Elena Neri</strong>
+                    <span>18 minuti fa</span>
+                </div>
+            </li>
+            <li>
+                <span class="activity-dot"></span>
+                <div>
+                    <strong>Ticket #1029 chiuso dopo conferma cliente</strong>
+                    <span>1 ora fa</span>
+                </div>
+            </li>
+        </ol>
+    </section>
+</main>
+</body>
+</html>

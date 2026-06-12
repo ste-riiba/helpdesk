@@ -27,3 +27,46 @@ CREATE DATABASE helpdesk_db;
 Gli utenti non si registrano autonomamente: vengono creati da un amministratore tramite `POST /api/v1/admin/users`.
 
 Se in futuro serve riabilitare la registrazione pubblica, impostare `helpdesk.registration.enabled=true`.
+
+## Autenticazione
+
+Il login usa JWT.
+
+Endpoint:
+
+```http
+POST /api/v1/auth/login
+```
+
+Body:
+
+```json
+{
+  "email": "admin@helpdesk.local",
+  "password": "Admin123!"
+}
+```
+
+Risposta:
+
+```json
+{
+  "token": "...",
+  "email": "admin@helpdesk.local",
+  "role": "ADMIN"
+}
+```
+
+Per chiamare API protette usare l'header:
+
+```http
+Authorization: Bearer <token>
+```
+
+Il frontend salva il token in `sessionStorage` e lo elimina al logout.
+
+In produzione impostare una chiave JWT esplicita:
+
+```powershell
+$env:JWT_SECRET="una-chiave-lunga-e-segreta"
+```

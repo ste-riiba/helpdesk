@@ -19,30 +19,38 @@ loginForm?.addEventListener("submit", async (event) => {
         return;
     }
 
-    const basicAuth = btoa(`${email}:${password}`);
-
     submitButton.disabled = true;
     setMessage("Controllo credenziali...", "");
 
     try {
-        const response = await fetch("/api/v1/users/me", {
-            method: "GET",
+        const response = await fetch("/api/v1/auth/login", {
+            method: "POST",
             headers: {
-                "Authorization": `Basic ${basicAuth}`
-            }
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
         });
 
         if (!response.ok) {
             throw new Error("Credenziali non valide.");
         }
 
-        sessionStorage.setItem("basicAuth", basicAuth);
-        sessionStorage.setItem("userEmail", email);
+        const user = await response.json();
+
+        sessionStorage.setItem("token", user.token);
+        sessionStorage.setItem("userEmail", user.email);
+        sessionStorage.setItem("userRole", user.role);
         setMessage("Accesso riuscito.", "success");
-        window.location.replace("../index.html");
+
+        if (user.role === "ADMIN") {
+            window.location.replace("/pages/admin-dashboard.html");
+        } else {
+            window.location.replace("/index.html");
+        }
     } catch (error) {
-        sessionStorage.removeItem("basicAuth");
+        sessionStorage.removeItem("token");
         sessionStorage.removeItem("userEmail");
+        sessionStorage.removeItem("userRole");
         setMessage(error.message || "Accesso non riuscito.", "error");
     } finally {
         submitButton.disabled = false;

@@ -7,9 +7,9 @@ ticketForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const formData = new FormData(ticketForm);
-    const basicAuth = sessionStorage.getItem("basicAuth");
+    const token = sessionStorage.getItem("token");
 
-    if (!basicAuth) {
+    if (!token) {
         window.location.replace("/pages/login.html");
         return;
     }
@@ -26,7 +26,7 @@ ticketForm?.addEventListener("submit", async (e) => {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Basic ${basicAuth}`
+            "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(ticket)
     });
@@ -42,9 +42,9 @@ ticketForm?.addEventListener("submit", async (e) => {
 })
 
 async function getMyTickets() {
-    const basicAuth = sessionStorage.getItem("basicAuth");
+    const token = sessionStorage.getItem("token");
 
-    if (!basicAuth) {
+    if (!token) {
         window.location.replace("/pages/login.html");
         return;
     }
@@ -52,7 +52,7 @@ async function getMyTickets() {
     const response = await fetch("/api/v1/tickets", {
         method: "GET",
         headers: {
-            "Authorization": `Basic ${basicAuth}`
+            "Authorization": `Bearer ${token}`
         }
     });
 
@@ -98,9 +98,11 @@ async function getMyTickets() {
     console.log(tickets);
 }
 
-logoutBtn?.addEventListener("click", () => {
-    sessionStorage.removeItem("basicAuth");
+logoutBtn?.addEventListener("click", (event) => {
+    event.preventDefault();
+    sessionStorage.removeItem("token");
     sessionStorage.removeItem("userEmail");
+    sessionStorage.removeItem("userRole");
     window.location.replace("/pages/login.html");
 });
 
