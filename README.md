@@ -23,3 +23,7 @@ Per l'esecuzione locale serve un database MariaDB/MySQL chiamato `helpdesk_db`.
 ```sql
 CREATE DATABASE helpdesk_db;
 ```
+
+Gli utenti non si registrano autonomamente: vengono creati da un amministratore tramite `POST /api/v1/admin/users`.
+
+Se in futuro serve riabilitare la registrazione pubblica, impostare `helpdesk.registration.enabled=true`.

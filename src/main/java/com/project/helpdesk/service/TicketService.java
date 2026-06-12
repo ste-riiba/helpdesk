@@ -47,6 +47,13 @@ public class TicketService {
         return toResponse(existing);
     }
 
+    public List<TicketResponse> findAllMyTickets() {
+        User current = currentUserService.getCurrentUser();
+
+        List<Ticket> tickets = ticketRepository.findAllByAuthor_Email(current.getEmail());
+        return tickets.stream().map(this::toResponse).toList();
+    }
+
     public List<TicketResponse> findAllByUserEmail(String email) {
         if (email == null) {
             throw new IllegalArgumentException("Email can't be null");

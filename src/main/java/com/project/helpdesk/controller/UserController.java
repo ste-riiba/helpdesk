@@ -1,14 +1,18 @@
 package com.project.helpdesk.controller;
 
+import com.project.helpdesk.dto.request.AdminUserCreateRequest;
 import com.project.helpdesk.dto.request.ChangePasswordRequest;
 import com.project.helpdesk.dto.request.UserUpdateRequest;
 import com.project.helpdesk.dto.response.UserResponse;
 import com.project.helpdesk.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Validated
 @RestController
@@ -39,6 +43,20 @@ public class UserController {
         UserResponse response = userService.updateProfile(request);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/admin/users")
+    public ResponseEntity<List<UserResponse>> getUsers() {
+        List<UserResponse> response = userService.findAll();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/admin/users")
+    public ResponseEntity<UserResponse> createUser(@RequestBody @Valid AdminUserCreateRequest request) {
+        UserResponse response = userService.createByAdmin(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/admin/users/{id}/disable")

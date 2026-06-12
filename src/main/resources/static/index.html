@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk - Home</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="js/home.js"></script>
+</head>
+<body class="app-page">
+<header class="app-header">
+    <a class="brand-link" href="index.html" aria-label="Helpdesk home">
+        <span class="brand-mark" aria-hidden="true">H</span>
+        <span>
+            <span class="eyebrow">Helpdesk</span>
+            <strong>Support Hub</strong>
+        </span>
+    </a>
+
+    <nav class="top-nav" aria-label="Navigazione principale">
+        <a href="#overview">Panoramica</a>
+        <a href="#new-ticket">Nuovo ticket</a>
+        <a href="#tickets">Ticket</a>
+    </nav>
+
+    <a class="ghost-button logout-btn" href="pages/login.html">Logout</a>
+</header>
+
+<main class="home-shell">
+    <section class="hero-band" id="overview" aria-labelledby="home-title">
+        <div class="hero-copy">
+            <p class="eyebrow">Area personale</p>
+            <h1 id="home-title">Gestisci le richieste con ordine.</h1>
+            <p>
+                Apri nuove richieste, controlla le priorita e mantieni ordinato il lavoro del team di supporto.
+            </p>
+            <div class="hero-actions">
+                <a class="primary-button button-link" href="#new-ticket">Apri ticket</a>
+                <a class="secondary-button" href="#tickets">Vedi stato</a>
+            </div>
+        </div>
+
+        <aside class="hero-summary" aria-label="Riepilogo ticket">
+            <div class="summary-card accent-blue">
+                <span class="summary-value">01</span>
+                <span>Apri una richiesta</span>
+            </div>
+            <div class="summary-card accent-green">
+                <span class="summary-value">24h</span>
+                <span>Tempo target risposta</span>
+            </div>
+            <div class="summary-card accent-violet">
+                <span class="summary-value">5</span>
+                <span>Categorie disponibili</span>
+            </div>
+        </aside>
+    </section>
+
+    <section class="workspace-grid">
+        <section class="ticket-panel" id="new-ticket" aria-labelledby="ticket-form-title">
+            <div class="section-heading">
+                <p class="eyebrow">Richiesta</p>
+                <h2 id="ticket-form-title">Apri un nuovo ticket</h2>
+                <p>Descrivi il problema con pochi dettagli chiari: categoria, urgenza e contesto.</p>
+            </div>
+
+            <form class="ticket-form">
+                <div class="field-group">
+                    <label for="title">Titolo</label>
+                    <input id="title" name="title" type="text" maxlength="100"
+                           placeholder="Es. Non riesco ad accedere alla VPN" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="field-group">
+                        <label for="category">Categoria</label>
+                        <select id="category" name="category" required>
+                            <option value="SOFTWARE">Software</option>
+                            <option value="HARDWARE">Hardware</option>
+                            <option value="NETWORK">Rete</option>
+                            <option value="ACCOUNT">Account</option>
+                            <option value="OTHER">Altro</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="priority">Priorita</label>
+                        <select id="priority" name="priority" required>
+                            <option value="LOW">Bassa</option>
+                            <option value="MEDIUM" selected>Media</option>
+                            <option value="HIGH">Alta</option>
+                            <option value="URGENT">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label for="description">Descrizione</label>
+                    <textarea id="description" name="description" maxlength="1000" rows="6"
+                              placeholder="Cosa succede? Da quando? Hai gia provato qualcosa?" required></textarea>
+                </div>
+
+                <div class="form-footer">
+                    <button id="submitTicketBtn" class="primary-button" type="submit">Invia ticket</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="insight-panel" aria-label="Suggerimenti rapidi">
+            <div class="section-heading compact">
+                <p class="eyebrow">Focus</p>
+                <h2>Prima di inviare</h2>
+            </div>
+
+            <ul class="check-list">
+                <li>Inserisci messaggi di errore o screenshot se disponibili.</li>
+                <li>Segna urgente solo cio che blocca il lavoro.</li>
+                <li>Per account e password, evita dati sensibili nella descrizione.</li>
+            </ul>
+        </aside>
+    </section>
+
+    <section class="ticket-board" id="tickets" aria-labelledby="ticket-board-title">
+        <div class="section-heading">
+            <p class="eyebrow">Ticket recenti</p>
+            <h2 id="ticket-board-title">Le tue richieste</h2>
+            <p>Uno spazio pronto per mostrare lo stato delle richieste quando collegherai i dati.</p>
+        </div>
+
+        <div class="ticket-list">
+            <article class="ticket-item">
+                <div class="ticket-item-header">
+                    <div>
+                        <h3>Accesso account amministrativo</h3>
+                        <p>Verifica delle credenziali e aggiornamento dei permessi utente.</p>
+                    </div>
+                    <span class="pill pill-status">Aperto</span>
+                </div>
+                <div class="ticket-meta">
+                    <span class="pill pill-priority">Alta</span>
+                    <span class="pill">Account</span>
+                </div>
+            </article>
+
+            <article class="ticket-item">
+                <div class="ticket-item-header">
+                    <div>
+                        <h3>Configurazione nuova postazione</h3>
+                        <p>Installazione software di base e controllo connessione alla rete aziendale.</p>
+                    </div>
+                    <span class="pill pill-status">In lavorazione</span>
+                </div>
+                <div class="ticket-meta">
+                    <span class="pill pill-priority">Media</span>
+                    <span class="pill">Hardware</span>
+                </div>
+            </article>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

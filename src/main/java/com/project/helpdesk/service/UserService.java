@@ -1,6 +1,7 @@
 package com.project.helpdesk.service;
 
 import com.project.helpdesk.dto.request.ChangePasswordRequest;
+import com.project.helpdesk.dto.request.AdminUserCreateRequest;
 import com.project.helpdesk.dto.request.UserCreateRequest;
 import com.project.helpdesk.dto.request.UserUpdateRequest;
 import com.project.helpdesk.dto.response.UserResponse;
@@ -66,6 +67,37 @@ public class UserService {
         }
 
         User user = toEntity(request, email);
+
+        User saved = userRepository.save(user);
+
+        return toResponse(saved);
+    }
+
+    public UserResponse createByAdmin(AdminUserCreateRequest request) {
+        if (request == null) {
+            throw new IllegalArgumentException("AdminUserCreateRequest can't be null");
+        }
+
+        String email = request.email().toLowerCase().trim();
+
+        Optional<User> existing = userRepository.findByEmail(email);
+
+        if (existing.isPresent()) {
+            throw new DuplicatedResourceException("Email already in use");
+        }
+
+        if (!request.password().equals(request.confirmPassword())) {
+            throw new IllegalArgumentException("Passwords don't match");
+        }
+
+        User user = User.builder()
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .email(email)
+                .role(request.role() == null ? UserRole.CUSTOMER : request.role())
+                .status(request.status() == null ? UserStatus.ACTIVE : request.status())
+                .passwordHash(passwordEncoder.encode(request.password()))
+                .build();
 
         User saved = userRepository.save(user);
 

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk - Login</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="login-page">
+<main class="login-shell">
+    <section class="login-panel" aria-label="Accesso helpdesk">
+        <div class="brand-block">
+            <div class="brand-mark" aria-hidden="true">H</div>
+            <div>
+                <p class="eyebrow">Helpdesk</p>
+                <h1>Accedi al portale</h1>
+            </div>
+        </div>
+
+        <p class="intro">
+            Gestisci ticket, risposte e richieste di supporto dal tuo spazio personale.
+        </p>
+
+        <form id="loginForm" class="login-form" novalidate>
+            <div class="field-group">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" placeholder="nome@email.com" required>
+            </div>
+
+            <div class="field-group">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" placeholder="La tua password" required>
+            </div>
+
+            <button type="submit" class="primary-button">Accedi</button>
+
+            <p id="loginMessage" class="form-message" aria-live="polite"></p>
+        </form>
+    </section>
+
+    <aside class="login-aside" aria-label="Riepilogo funzionalita">
+        <div class="aside-content">
+            <p class="eyebrow">Support workspace</p>
+            <h2>Ticket chiari, conversazioni ordinate.</h2>
+            <p>
+                Un ambiente semplice per aprire richieste, seguirne lo stato e collaborare con gli agenti.
+            </p>
+        </div>
+    </aside>
+</main>
+
+<script src="../js/auth.js"></script>
+</body>
+</html>

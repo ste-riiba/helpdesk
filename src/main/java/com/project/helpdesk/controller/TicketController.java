@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Validated
 @RestController
 @RequestMapping("/api/v1")
@@ -19,6 +21,12 @@ public class TicketController {
 
     public TicketController(TicketService ticketService) {
         this.ticketService = ticketService;
+    }
+
+    @GetMapping("/tickets")
+    public ResponseEntity<List<TicketResponse>> findAllMyTickets() {
+        List<TicketResponse> response = ticketService.findAllMyTickets();
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/tickets")
