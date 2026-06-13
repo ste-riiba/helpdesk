@@ -1,109 +1,119 @@
+import { getToken, logout } from "./auth-utils.js";
+import { showToast } from "./toast.js";
+
 const logoutBtn = document.querySelector(".logout-btn");
 const ticketForm = document.querySelector(".ticket-form");
 const ticketListEl = document.querySelector(".ticket-list");
 const summaryEl = document.querySelector(".summary-card");
+const submitTicketBtn = document.querySelector("#submit-ticket-btn");
 
-ticketForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(ticketForm);
-    const token = sessionStorage.getItem("token");
-
-    if (!token) {
-        window.location.replace("/pages/login.html");
+function renderTickets(tickets) {
+    if (tickets.length === 0) {
+        ticketListEl.innerHTML = `
+            <article class="ticket-empty">
+                <strong>Nessun ticket trovato.</strong>
+                <span>Quando apri una richiesta, comparirà qui.</span>
+            </article>
+        `;
         return;
     }
 
+    summaryEl.innerHTML = `
+        <span class="summary-value">Tickets aperti: ${tickets.length}</span>
+        <span>Richieste personali</span>
+    `;
+
+    ticketListEl.innerHTML = tickets.map((ticket) => `
+        <article class="ticket-item">
+            <div class="ticket-item-header">
+                <div>
+                    <h3>${ticket.title}</h3>
+                    <p>${ticket.description}</p>
+                </div>
+                <span class="pill pill-status">${ticket.status}</span>
+            </div>
+            <div class="ticket-meta">
+                <span class="pill pill-priority">${ticket.priority}</span>
+                <span class="pill">${ticket.category}</span>
+            </div>
+        </article>
+    `).join("");
+}
+
+async function getMyTickets() {
+    const token = getToken();
+
+    if (!token) {
+        return;
+    }
+
+    try {
+        const response = await fetch("/api/v1/tickets", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Non sono riuscito a recuperare le tue richieste.");
+        }
+
+        const tickets = await response.json();
+        renderTickets(tickets);
+    } catch (error) {
+        showToast("error", "Ticket non caricati", error.message);
+    }
+}
+
+async function createTicket(event) {
+    event.preventDefault();
+
+    const token = getToken();
+
+    if (!token) {
+        return;
+    }
+
+    const formData = new FormData(ticketForm);
     const ticket = {
         title: formData.get("title"),
         category: formData.get("category"),
         priority: formData.get("priority"),
         description: formData.get("description")
+    };
 
-    }
+    submitTicketBtn.disabled = true;
 
-    const response = await fetch("/api/v1/tickets", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(ticket)
-    });
+    try {
+        const response = await fetch("/api/v1/tickets", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(ticket)
+        });
 
-    if (!response.ok) {
-        alert("Errore")
-        return;
-    }
-
-    console.log("ticket creato");
-    ticketForm.reset();
-    getMyTickets();
-})
-
-async function getMyTickets() {
-    const token = sessionStorage.getItem("token");
-
-    if (!token) {
-        window.location.replace("/pages/login.html");
-        return;
-    }
-
-    const response = await fetch("/api/v1/tickets", {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
+        if (!response.ok) {
+            throw new Error("Controlla i dati inseriti e riprova.");
         }
-    });
 
-    if (!response.ok) {
-        alert("error");
-        return;
+        ticketForm.reset();
+        await getMyTickets();
+        showToast("success", "Ticket creato", "Ticket aperto correttamente.");
+    } catch (error) {
+        showToast("error", "Ticket non creato", error.message);
+    } finally {
+        submitTicketBtn.disabled = false;
     }
-
-    const tickets = await response.json();
-
-    if (tickets.length === 0) {
-        ticketListEl.innerHTML = `
-        <article class="ticket-empty">
-            <strong>Nessun ticket trovato.</strong>
-            <span>Quando apri una richiesta, comparirà qui.</span>
-        </article>
-    `;
-        return;
-    }
-
-
-    summaryEl.innerHTML = ""
-    summaryEl.insertAdjacentHTML("afterbegin", `<span class="summary-value">Tickets aperti: ${tickets.length}</span>
-<span></span>`);
-
-    ticketListEl.innerHTML = "";
-
-    ticketListEl.innerHTML = tickets.map(t => `
-    <article class="ticket-item">
-                <div class="ticket-item-header">
-                    <div>
-                        <h3>${t.title}</h3>
-                        <p>${t.description}</p>
-                    </div>
-                    <span class="pill pill-status">${t.status}</span>
-                </div>
-                <div class="ticket-meta">
-                    <span class="pill pill-priority">${t.priority}</span>
-                    <span class="pill">${t.category}</span>
-                </div>
-            </article>`).join("");
-
-    console.log(tickets);
 }
+
+ticketForm?.addEventListener("submit", createTicket);
 
 logoutBtn?.addEventListener("click", (event) => {
     event.preventDefault();
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userEmail");
-    sessionStorage.removeItem("userRole");
-    window.location.replace("/pages/login.html");
+    logout();
 });
 
 getMyTickets();

@@ -1,5 +1,5 @@
-const loginForm = document.querySelector("#loginForm");
-const loginMessage = document.querySelector("#loginMessage");
+const loginForm = document.querySelector("#login-form");
+const loginMessage = document.querySelector("#login-message");
 
 function setMessage(message, type) {
     loginMessage.textContent = message;
@@ -28,7 +28,7 @@ loginForm?.addEventListener("submit", async (event) => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({email, password})
         });
 
         if (!response.ok) {

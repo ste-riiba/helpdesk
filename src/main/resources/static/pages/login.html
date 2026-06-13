@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Helpdesk - Login</title>
     <link rel="stylesheet" href="../css/style.css">
+    <script type="module" src="../js/auth.js"></script>
 </head>
 <body class="login-page">
 <main class="login-shell">
@@ -21,7 +22,7 @@
             Gestisci ticket, risposte e richieste di supporto dal tuo spazio personale.
         </p>
 
-        <form id="loginForm" class="login-form" novalidate>
+        <form id="login-form" class="login-form" novalidate>
             <div class="field-group">
                 <label for="email">Email</label>
                 <input id="email" name="email" type="email" autocomplete="email" placeholder="nome@email.com" required>
@@ -29,12 +30,13 @@
 
             <div class="field-group">
                 <label for="password">Password</label>
-                <input id="password" name="password" type="password" autocomplete="current-password" placeholder="La tua password" required>
+                <input id="password" name="password" type="password" autocomplete="current-password"
+                       placeholder="La tua password" required>
             </div>
 
             <button type="submit" class="primary-button">Accedi</button>
 
-            <p id="loginMessage" class="form-message" aria-live="polite"></p>
+            <p id="login-message" class="form-message" aria-live="polite"></p>
         </form>
     </section>
 
@@ -48,7 +50,5 @@
         </div>
     </aside>
 </main>
-
-<script src="../js/auth.js"></script>
 </body>
 </html>
