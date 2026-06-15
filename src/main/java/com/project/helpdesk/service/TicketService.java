@@ -4,9 +4,11 @@ import com.project.helpdesk.dto.request.TicketCreateRequest;
 import com.project.helpdesk.dto.request.TicketStatusUpdateRequest;
 import com.project.helpdesk.dto.request.TicketUpdateRequest;
 import com.project.helpdesk.dto.response.TicketResponse;
-import com.project.helpdesk.entity.*;
+import com.project.helpdesk.entity.Ticket;
+import com.project.helpdesk.entity.TicketStatus;
+import com.project.helpdesk.entity.User;
+import com.project.helpdesk.entity.UserRole;
 import com.project.helpdesk.exception.ForbiddenActionException;
-import com.project.helpdesk.repository.ActivityLogRepository;
 import com.project.helpdesk.repository.TicketRepository;
 import com.project.helpdesk.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,13 +22,13 @@ import java.util.List;
 @Transactional
 public class TicketService {
     private final TicketRepository ticketRepository;
-    private final ActivityLogRepository activityLogRepository;
+    private final ActivityLogService activityLogService;
     private final CurrentUserService currentUserService;
     private final UserRepository userRepository;
 
-    public TicketService(TicketRepository ticketRepository, ActivityLogRepository activityLogRepository, CurrentUserService currentUserService, UserRepository userRepository) {
+    public TicketService(TicketRepository ticketRepository, ActivityLogService activityLogService, CurrentUserService currentUserService, UserRepository userRepository) {
         this.ticketRepository = ticketRepository;
-        this.activityLogRepository = activityLogRepository;
+        this.activityLogService = activityLogService;
         this.currentUserService = currentUserService;
         this.userRepository = userRepository;
     }
@@ -77,16 +79,7 @@ public class TicketService {
         ticket.setAuthor(author);
         Ticket saved = ticketRepository.save(ticket);
 
-        ActivityLog activityLog = ActivityLog.builder()
-                .type(ActivityLogType.TICKET_CREATED)
-                .title("Ticket created")
-                .description("New ticket open")
-                .entityType("Ticket")
-                .entityId(saved.getId())
-                .author(author)
-                .build();
-
-        activityLogRepository.save(activityLog);
+        activityLogService.logTicketCreated(saved, author);
 
         return toResponse(saved);
     }
@@ -162,6 +155,8 @@ public class TicketService {
 
         Ticket updated = ticketRepository.save(existing);
 
+        activityLogService.logTicketAssigned(updated, agent);
+
         return toResponse(updated);
     }
 
@@ -189,15 +184,24 @@ public class TicketService {
             throw new ForbiddenActionException("You don't have permission to complete this action");
         }
 
-        existing.setStatus(request.status());
+        TicketStatus oldStatus = existing.getStatus();
+        TicketStatus newStatus = request.status();
 
-        if (request.status() == TicketStatus.CLOSED) {
+        if (oldStatus == newStatus) {
+            return toResponse(existing);
+        }
+
+        existing.setStatus(newStatus);
+
+        if (newStatus == TicketStatus.CLOSED) {
             existing.setClosedAt(LocalDateTime.now());
         } else {
             existing.setClosedAt(null);
         }
 
         Ticket updated = ticketRepository.save(existing);
+
+        activityLogService.logTicketStatusChanged(updated, user, oldStatus, newStatus);
 
         return toResponse(updated);
     }

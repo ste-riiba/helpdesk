@@ -36,6 +36,11 @@ public class TicketController {
         return ResponseEntity.ok(tickets);
     }
 
+    @GetMapping("/agent/tickets/{id}")
+    public ResponseEntity<TicketResponse> findTicketById(@PathVariable @Positive Integer id) {
+        return ResponseEntity.ok(ticketService.findById(id));
+    }
+
     @PostMapping("/tickets")
     public ResponseEntity<TicketResponse> openNewTicket(@RequestBody @Valid TicketCreateRequest request) {
         TicketResponse response = ticketService.create(request);
@@ -57,7 +62,4 @@ public class TicketController {
 
         return ResponseEntity.ok(response);
     }
-
-    // TODO
-    // add methods to update category and priority
 }

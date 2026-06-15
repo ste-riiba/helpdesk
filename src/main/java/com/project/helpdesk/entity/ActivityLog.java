@@ -19,7 +19,7 @@ public class ActivityLog {
     private Integer id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50, columnDefinition = "varchar(50)")
     private ActivityLogType type;
 
     @Column(nullable = false)
@@ -38,6 +38,7 @@ public class ActivityLog {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    // author of the activity
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     private User author;

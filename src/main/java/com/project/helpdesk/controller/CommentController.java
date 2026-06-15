@@ -21,8 +21,7 @@ public class CommentController {
         this.commentService = commentService;
 
     }
-
-
+    
     @GetMapping("/tickets/{ticketId}/comments")
     public ResponseEntity<List<CommentResponse>> findAllCommentsByTicketId(@PathVariable @Positive Integer ticketId) {
         List<CommentResponse> response = commentService.findAllByTicketId(ticketId);

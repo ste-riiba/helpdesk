@@ -11,6 +11,7 @@ const ticketTableBody = document.querySelector("#admin-ticket-table-body");
 const userTableBody = document.querySelector("#admin-user-table-body");
 const ticketTableCount = document.querySelector("#ticket-table-count");
 const userTableCount = document.querySelector("#user-table-count");
+const activityList = document.querySelector("#activity-list");
 
 if (!sessionStorage.getItem("token") || sessionStorage.getItem("userRole") !== "ADMIN") {
     window.location.replace("/index.html");
@@ -92,7 +93,7 @@ async function createNewUser(e) {
         createUserForm.reset();
         closeModal();
         showToast("success", "Utente creato", "Il nuovo account e stato aggiunto correttamente.");
-        await loadStats();
+        await loadDashboardData();
     } catch (error) {
         showToast("error", "Utente non creato", error.message);
     } finally {
@@ -100,7 +101,7 @@ async function createNewUser(e) {
     }
 }
 
-async function loadStats() {
+async function loadDashboardData() {
     const openedTicketEl = document.querySelector("#num-opened-tickets");
     const openedTicketFromYDEl = document.querySelector("#num-ticket-from-yd");
     const ticketInProgressEl = document.querySelector("#num-ticket-in-progress");
@@ -130,6 +131,11 @@ async function loadStats() {
             headers
         });
 
+        const activityResponse = await fetch("/api/v1/admin/activity", {
+            method: "GET",
+            headers
+        });
+
         if (!ticketResponse.ok) {
             throw new Error("Errore nel caricare i ticket.");
         }
@@ -138,8 +144,13 @@ async function loadStats() {
             throw new Error("Errore nel caricare gli utenti.");
         }
 
+        if (!activityResponse.ok) {
+            throw new Error("Errore nel caricare gli aggiornamenti.");
+        }
+
         const tickets = await ticketResponse.json();
         const users = await userResponse.json();
+        const activities = await activityResponse.json();
 
         const numOpenTickets = tickets.filter((ticket) => ticket.status === "OPEN").length;
         const openTicketsFromYesterday = countOpenTicketsFromYesterday(tickets);
@@ -166,6 +177,7 @@ async function loadStats() {
 
         renderTicketTable(tickets);
         renderUserTable(users);
+        renderActivities(activities);
     } catch (error) {
         showToast("error", "Dati non caricati", error.message);
     }
@@ -188,14 +200,18 @@ function renderTicketTable(tickets) {
         return;
     }
 
-    ticketTableCount.textContent = tickets.length;
+    const manageableTickets = tickets.filter((ticket) =>
+        ticket.status !== "RESOLVED" && ticket.status !== "CLOSED"
+    );
 
-    if (tickets.length === 0) {
-        ticketTableBody.innerHTML = `<tr><td colspan="6">Nessun ticket trovato.</td></tr>`;
+    ticketTableCount.textContent = manageableTickets.length;
+
+    if (manageableTickets.length === 0) {
+        ticketTableBody.innerHTML = `<tr><td colspan="6">Nessun ticket da gestire.</td></tr>`;
         return;
     }
 
-    ticketTableBody.innerHTML = tickets.map((ticket) => {
+    ticketTableBody.innerHTML = manageableTickets.map((ticket) => {
         const ticketId = ticket.id ?? ticket.ticketId ?? "";
         const title = ticket.title ?? ticket.subject ?? "Ticket senza titolo";
         const requester = getRequesterName(ticket);
@@ -206,7 +222,7 @@ function renderTicketTable(tickets) {
         const createdAt = formatDate(ticket.createdAt);
 
         return `
-            <tr>
+            <tr class="clickable-row" data-ticket-id="${escapeHtml(ticketId)}">
                 <td>
                     <strong>#${escapeHtml(ticketId)} ${escapeHtml(title)}</strong>
                     <span>${escapeHtml(requester)}</span>
@@ -219,6 +235,12 @@ function renderTicketTable(tickets) {
             </tr>
         `;
     }).join("");
+
+    ticketTableBody.querySelectorAll("[data-ticket-id]").forEach((row) => {
+        row.addEventListener("click", () => {
+            window.location.href = `/pages/ticket-detail.html?id=${row.dataset.ticketId}`;
+        });
+    });
 }
 
 function renderUserTable(users) {
@@ -253,8 +275,48 @@ function renderUserTable(users) {
     }).join("");
 }
 
+function renderActivities(activities) {
+    if (!activityList) {
+        return;
+    }
+
+    if (activities.length === 0) {
+        activityList.innerHTML = `
+            <li>
+                <span class="activity-dot"></span>
+                <div>
+                    <strong>Nessun aggiornamento recente</strong>
+                    <span>Le nuove attivita compariranno qui.</span>
+                </div>
+            </li>
+        `;
+        return;
+    }
+
+    activityList.innerHTML = activities.map((activity) => {
+        const title = activity.title ?? "Aggiornamento";
+        const description = activity.description ?? "";
+        const author = activity.authorFullName ?? "Autore non disponibile";
+        const createdAt = formatDate(activity.createdAt);
+        const type = activity.type ?? "";
+        const dotClass = getActivityDotClass(type);
+
+        return `
+            <li>
+                <span class="activity-dot ${dotClass}"></span>
+                <div>
+                    <strong>${escapeHtml(title)}</strong>
+                    <span>${escapeHtml(description)}</span>
+                    <span>${escapeHtml(author)} &middot; ${escapeHtml(createdAt)}</span>
+                </div>
+            </li>
+        `;
+    }).join("");
+}
+
 function getRequesterName(ticket) {
-    return ticket.requesterFullName
+    return ticket.authorFullName
+        ?? ticket.requesterFullName
         ?? ticket.customerFullName
         ?? ticket.userFullName
         ?? ticket.createdByFullName
@@ -314,6 +376,7 @@ function formatLabel(value) {
     const labels = {
         OPEN: "aperto",
         IN_PROGRESS: "in lavorazione",
+        WAITING_FOR_CUSTOMER: "in attesa cliente",
         PENDING: "in attesa",
         RESOLVED: "risolto",
         CLOSED: "chiuso",
@@ -346,6 +409,7 @@ function getStatusClass(status) {
     const classes = {
         OPEN: "pill-status-open",
         IN_PROGRESS: "pill-status-in-progress",
+        WAITING_FOR_CUSTOMER: "pill-status-pending",
         PENDING: "pill-status-pending",
         RESOLVED: "pill-status-resolved",
         CLOSED: "pill-status-closed",
@@ -366,6 +430,22 @@ function getRoleClass(role) {
     return classes[role] ?? "pill-role-customer";
 }
 
+function getActivityDotClass(type) {
+    if (type.startsWith("USER")) {
+        return "activity-dot-user";
+    }
+
+    if (type === "TICKET_CLOSED") {
+        return "activity-dot-closed";
+    }
+
+    if (type.startsWith("TICKET")) {
+        return "activity-dot-ticket";
+    }
+
+    return "";
+}
+
 function escapeHtml(value) {
     return String(value)
         .replaceAll("&", "&amp;")
@@ -375,4 +455,4 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
-loadStats();
+loadDashboardData();

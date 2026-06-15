@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk - Dettaglio ticket</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="app-page ticket-detail-page">
+<header class="app-header">
+    <a class="brand-link" href="admin-dashboard.html" aria-label="Torna alla dashboard admin">
+        <span class="brand-mark" aria-hidden="true">H</span>
+        <span>
+            <span class="eyebrow">Helpdesk</span>
+            <strong>Dettaglio ticket</strong>
+        </span>
+    </a>
+
+    <nav class="top-nav" aria-label="Navigazione ticket">
+        <a href="admin-dashboard.html#tickets">Ticket</a>
+        <a href="admin-dashboard.html#users">Utenti</a>
+        <a href="admin-dashboard.html#activity">Attivita</a>
+    </nav>
+
+    <a class="ghost-button logout-btn" href="login.html">Logout</a>
+</header>
+
+<main class="home-shell ticket-detail-shell">
+    <section class="admin-panel ticket-detail-main" aria-labelledby="ticket-detail-title">
+        <div class="section-heading-row">
+            <div class="section-heading">
+                <p class="eyebrow" id="ticket-detail-code">Ticket</p>
+                <h1 id="ticket-detail-title">Caricamento ticket...</h1>
+                <p id="ticket-detail-description">Attendi il caricamento dei dettagli.</p>
+            </div>
+
+            <div class="ticket-detail-actions" aria-label="Azioni ticket">
+                <button id="assign-ticket-btn" class="secondary-button" type="button" disabled>Assegna a me</button>
+                <div class="ticket-status-action">
+                    <label for="ticket-status-select">Stato</label>
+                    <select id="ticket-status-select">
+                        <option value="OPEN">Aperto</option>
+                        <option value="IN_PROGRESS">In lavorazione</option>
+                        <option value="WAITING_FOR_CUSTOMER">In attesa cliente</option>
+                        <option value="RESOLVED">Risolto</option>
+                        <option value="CLOSED">Chiuso</option>
+                    </select>
+                </div>
+                <button id="update-status-btn" class="primary-button" type="button" disabled>Aggiorna stato</button>
+            </div>
+        </div>
+
+        <dl class="ticket-detail-meta">
+            <div>
+                <dt>Stato</dt>
+                <dd><span id="ticket-status-pill" class="pill">-</span></dd>
+            </div>
+            <div>
+                <dt>Priorita</dt>
+                <dd><span id="ticket-priority-pill" class="pill">-</span></dd>
+            </div>
+            <div>
+                <dt>Categoria</dt>
+                <dd id="ticket-category">-</dd>
+            </div>
+            <div>
+                <dt>Richiedente</dt>
+                <dd id="ticket-author">-</dd>
+            </div>
+            <div>
+                <dt>Assegnato a</dt>
+                <dd id="ticket-agent">-</dd>
+            </div>
+            <div>
+                <dt>Creato</dt>
+                <dd id="ticket-created-at">-</dd>
+            </div>
+        </dl>
+    </section>
+
+    <section class="admin-panel ticket-comments-panel" aria-labelledby="ticket-comments-title">
+        <div class="section-heading-row">
+            <div class="section-heading">
+                <p class="eyebrow">Discussione</p>
+                <h2 id="ticket-comments-title">Commenti</h2>
+                <p>Storico della conversazione sul ticket.</p>
+            </div>
+        </div>
+
+        <ol id="comment-list" class="comment-list">
+            <li>Caricamento commenti...</li>
+        </ol>
+
+        <form id="comment-form" class="comment-form">
+            <div class="field-group">
+                <label for="comment-content">Nuovo commento</label>
+                <textarea id="comment-content" name="content" maxlength="1000" required></textarea>
+            </div>
+            <div class="form-footer">
+                <button id="create-comment-btn" class="primary-button" type="submit">Invia commento</button>
+                <p>Massimo 1000 caratteri.</p>
+            </div>
+        </form>
+    </section>
+</main>
+
+<div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+<script type="module" src="../js/ticket-detail.js"></script>
+</body>
+</html>
