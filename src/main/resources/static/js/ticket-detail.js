@@ -11,12 +11,18 @@ if (!sessionStorage.getItem("token") || !allowedRoles.includes(userRole)) {
 const params = new URLSearchParams(window.location.search);
 const ticketId = params.get("id");
 const logoutBtn = document.querySelector(".logout-btn");
+const usersNavLink = document.querySelector("#users-nav-link");
 const assignTicketBtn = document.querySelector("#assign-ticket-btn");
+const releaseTicketBtn = document.querySelector("#release-ticket-btn");
 const updateStatusBtn = document.querySelector("#update-status-btn");
 const statusSelect = document.querySelector("#ticket-status-select");
 const commentForm = document.querySelector("#comment-form");
 const createCommentBtn = document.querySelector("#create-comment-btn");
 const commentList = document.querySelector("#comment-list");
+
+if (userRole !== "ADMIN") {
+    usersNavLink?.remove();
+}
 
 logoutBtn?.addEventListener("click", (event) => {
     event.preventDefault();
@@ -24,6 +30,7 @@ logoutBtn?.addEventListener("click", (event) => {
 });
 
 assignTicketBtn?.addEventListener("click", assignTicketToMe);
+releaseTicketBtn?.addEventListener("click", releaseTicket);
 updateStatusBtn?.addEventListener("click", updateTicketStatus);
 commentForm?.addEventListener("submit", createComment);
 
@@ -55,6 +62,11 @@ async function loadTicketDetail() {
             headers
         });
 
+        const currentUserResponse = await fetch("/api/v1/users/me", {
+            method: "GET",
+            headers
+        });
+
         if (!ticketResponse.ok) {
             throw new Error(await getErrorMessage(ticketResponse, "Errore nel caricare il ticket."));
         }
@@ -63,10 +75,15 @@ async function loadTicketDetail() {
             throw new Error(await getErrorMessage(commentsResponse, "Errore nel caricare i commenti."));
         }
 
+        if (!currentUserResponse.ok) {
+            throw new Error(await getErrorMessage(currentUserResponse, "Errore nel caricare il profilo."));
+        }
+
         const ticket = await ticketResponse.json();
         const comments = await commentsResponse.json();
+        const currentUser = await currentUserResponse.json();
 
-        renderTicket(ticket);
+        renderTicket(ticket, currentUser);
         renderComments(comments);
     } catch (error) {
         showToast("error", "Dati non caricati", error.message);
@@ -98,6 +115,35 @@ async function assignTicketToMe() {
         await loadTicketDetail();
     } catch (error) {
         showToast("error", "Assegnazione non riuscita", error.message);
+        await loadTicketDetail();
+    }
+}
+
+async function releaseTicket() {
+    const token = getToken();
+
+    if (!token) {
+        return;
+    }
+
+    releaseTicketBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/api/v1/agent/tickets/${ticketId}/release`, {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(await getErrorMessage(response, "Non e possibile rilasciare questo ticket."));
+        }
+
+        showToast("success", "Ticket rilasciato", "Il ticket e tornato disponibile.");
+        await loadTicketDetail();
+    } catch (error) {
+        showToast("error", "Rilascio non riuscito", error.message);
         await loadTicketDetail();
     }
 }
@@ -179,7 +225,7 @@ async function createComment(event) {
     }
 }
 
-function renderTicket(ticket) {
+function renderTicket(ticket, currentUser) {
     document.querySelector("#ticket-detail-code").textContent = `Ticket #${ticket.id}`;
     document.querySelector("#ticket-detail-title").textContent = ticket.title ?? "Ticket senza titolo";
     document.querySelector("#ticket-detail-description").textContent = ticket.description ?? "Nessuna descrizione.";
@@ -199,7 +245,13 @@ function renderTicket(ticket) {
     priorityPill.className = `pill ${getPriorityClass(ticket.priority)}`;
     priorityPill.textContent = formatLabel(ticket.priority ?? "-");
 
-    assignTicketBtn.disabled = Boolean(ticket.agentId) || ticket.status !== "OPEN";
+    const isClosed = ticket.status === "CLOSED" || ticket.status === "RESOLVED";
+    const isAssigned = Boolean(ticket.agentId);
+    const isAssignedToCurrentUser = ticket.agentId === currentUser.id;
+    const isAdmin = currentUser.role === "ADMIN";
+
+    assignTicketBtn.disabled = isAssigned || ticket.status !== "OPEN";
+    releaseTicketBtn.disabled = !isAssigned || isClosed || (!isAdmin && !isAssignedToCurrentUser);
 }
 
 function renderComments(comments) {

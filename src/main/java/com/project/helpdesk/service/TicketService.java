@@ -40,6 +40,21 @@ public class TicketService {
                 .toList();
     }
 
+    public List<TicketResponse> findTicketsForAgents() {
+        User current = currentUserService.getCurrentUser();
+
+        if (current.getRole() == UserRole.ADMIN) {
+            return findAll();
+        }
+
+        return ticketRepository.findAll()
+                .stream()
+                .filter((ticket) -> ticket.getStatus() == TicketStatus.OPEN
+                        || isAssignedToCurrentAgent(ticket, current))
+                .map(this::toResponse)
+                .toList();
+    }
+
     public TicketResponse findById(Integer id) {
         validateId(id);
 
@@ -160,6 +175,43 @@ public class TicketService {
         return toResponse(updated);
     }
 
+    public TicketResponse releaseAssignment(Integer ticketId) {
+        validateId(ticketId);
+
+        User current = currentUserService.getCurrentUser();
+
+        if (current.getRole() != UserRole.AGENT && current.getRole() != UserRole.ADMIN) {
+            throw new ForbiddenActionException("You don't have permission to complete this action");
+        }
+
+        Ticket existing = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found with ID: " + ticketId));
+
+        if (existing.getAgent() == null) {
+            throw new ForbiddenActionException("Ticket is not assigned");
+        }
+
+        boolean isAdmin = current.getRole() == UserRole.ADMIN;
+        boolean isAssignedAgent = existing.getAgent().getId().equals(current.getId());
+
+        if (!isAdmin && !isAssignedAgent) {
+            throw new ForbiddenActionException("Only the assigned agent can release this ticket");
+        }
+
+        if (existing.getStatus() == TicketStatus.RESOLVED || existing.getStatus() == TicketStatus.CLOSED) {
+            throw new ForbiddenActionException("Resolved or closed tickets can't be released");
+        }
+
+        existing.setAgent(null);
+        existing.setStatus(TicketStatus.OPEN);
+
+        Ticket updated = ticketRepository.save(existing);
+
+        activityLogService.logTicketReleased(updated, current);
+
+        return toResponse(updated);
+    }
+
     public TicketResponse changeStatus(Integer id, TicketStatusUpdateRequest request) {
         validateId(id);
 
@@ -236,6 +288,13 @@ public class TicketService {
 
     private Ticket toEntity(TicketCreateRequest request) {
         return Ticket.builder().title(request.title()).description(request.description()).priority(request.priority()).category(request.category()).build();
+    }
+
+    private boolean isAssignedToCurrentAgent(Ticket ticket, User current) {
+        return ticket.getAgent() != null
+                && ticket.getAgent().getId().equals(current.getId())
+                && ticket.getStatus() != TicketStatus.RESOLVED
+                && ticket.getStatus() != TicketStatus.CLOSED;
     }
 
     private void validateId(Integer id) {

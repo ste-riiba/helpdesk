@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk - Utenti</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="app-page admin-page">
+<header class="app-header">
+    <a class="brand-link" href="admin-dashboard.html" aria-label="Torna alla dashboard admin">
+        <span class="brand-mark" aria-hidden="true">H</span>
+        <span>
+            <span class="eyebrow">Helpdesk</span>
+            <strong>Utenti</strong>
+        </span>
+    </a>
+
+    <nav class="top-nav" aria-label="Navigazione utenti">
+        <a href="admin-dashboard.html">Dashboard</a>
+        <a href="tickets.html">Ticket</a>
+        <a href="users.html" aria-current="page">Utenti</a>
+    </nav>
+
+    <a class="ghost-button logout-btn" href="login.html">Logout</a>
+</header>
+
+<main class="home-shell admin-shell">
+    <section class="admin-panel admin-data-section" aria-labelledby="users-title">
+        <div class="section-heading-row">
+            <div class="section-heading">
+                <p class="eyebrow">Gestione account</p>
+                <h1 id="users-title">Utenti</h1>
+                <p>Elenco completo degli account registrati.</p>
+            </div>
+
+            <div class="section-actions">
+                <span class="table-count"><span id="users-count">0</span>&nbsp;utenti</span>
+                <button id="open-create-user-modal" class="primary-button" type="button">Nuovo utente</button>
+            </div>
+        </div>
+
+        <form class="table-toolbar" id="users-filter-form">
+            <div class="field-group">
+                <label for="user-search">Cerca</label>
+                <input id="user-search" type="search" placeholder="Nome, cognome o email">
+            </div>
+
+            <div class="field-group">
+                <label for="role-filter">Ruolo</label>
+                <select id="role-filter">
+                    <option value="">Tutti</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="AGENT">Agent</option>
+                    <option value="CUSTOMER">Customer</option>
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label for="status-filter">Stato</label>
+                <select id="status-filter">
+                    <option value="">Tutti</option>
+                    <option value="ACTIVE">Attivo</option>
+                    <option value="PENDING">In attesa</option>
+                    <option value="DISABLED">Disabilitato</option>
+                </select>
+            </div>
+        </form>
+
+        <div class="admin-table-wrap admin-table-scroll full-list-scroll">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>Utente</th>
+                    <th>Email</th>
+                    <th>Ruolo</th>
+                    <th>Stato</th>
+                    <th>Azioni</th>
+                </tr>
+                </thead>
+                <tbody id="users-table-body">
+                <tr>
+                    <td colspan="5">Caricamento utenti...</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div id="create-user-modal" class="modal-overlay" aria-hidden="true">
+    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="create-user-title">
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">Nuovo account</p>
+                <h2 id="create-user-title">Crea utente</h2>
+            </div>
+            <button class="modal-close" type="button" data-modal-close aria-label="Chiudi modal">&times;</button>
+        </div>
+
+        <form id="create-user-form" class="modal-form">
+            <div class="form-row">
+                <div class="field-group">
+                    <label for="first-name">Nome</label>
+                    <input id="first-name" name="firstName" type="text" maxlength="100" required>
+                </div>
+
+                <div class="field-group">
+                    <label for="last-name">Cognome</label>
+                    <input id="last-name" name="lastName" type="text" maxlength="100" required>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" required>
+            </div>
+
+            <div class="form-row">
+                <div class="field-group">
+                    <label for="role">Ruolo</label>
+                    <select id="role" name="role" required>
+                        <option value="CUSTOMER">Customer</option>
+                        <option value="AGENT">Agent</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label for="status">Stato</label>
+                    <select id="status" name="status" required>
+                        <option value="ACTIVE">Attivo</option>
+                        <option value="PENDING">In attesa</option>
+                        <option value="DISABLED">Disabilitato</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="field-group">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" minlength="8" maxlength="30" required>
+                </div>
+
+                <div class="field-group">
+                    <label for="confirm-password">Conferma password</label>
+                    <input id="confirm-password" name="confirmPassword" type="password" minlength="8" maxlength="30" required>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="ghost-button" type="button" data-modal-close>Annulla</button>
+                <button id="create-user" class="primary-button" type="submit">Crea utente</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+<div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+<script type="module" src="../js/users.js"></script>
+</body>
+</html>

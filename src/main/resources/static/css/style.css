@@ -169,6 +169,22 @@ textarea:focus {
     transform: translateY(1px);
 }
 
+.ghost-button:disabled,
+.secondary-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+}
+
+.danger-button {
+    color: var(--danger);
+}
+
+.danger-button:hover {
+    border-color: rgba(180, 35, 24, 0.42);
+    color: var(--danger);
+}
+
 .form-message {
     min-height: 22px;
     margin: 0;
@@ -797,6 +813,18 @@ textarea:focus {
     overflow: auto;
 }
 
+.full-list-scroll {
+    max-height: calc(100vh - 330px);
+    min-height: 360px;
+}
+
+.table-toolbar {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) repeat(3, minmax(160px, 220px));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
 .admin-table {
     width: 100%;
     min-width: 900px;
@@ -855,6 +883,19 @@ textarea:focus {
 
 .clickable-row:hover {
     background: #f8fafc;
+}
+
+.row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.row-actions .ghost-button,
+.row-actions .secondary-button {
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 12px;
 }
 
 .activity-list {
@@ -1188,6 +1229,10 @@ textarea:focus {
         flex-direction: column;
     }
 
+    .table-toolbar {
+        grid-template-columns: 1fr 1fr;
+    }
+
     .admin-actions {
         justify-content: flex-start;
     }
@@ -1303,6 +1348,10 @@ textarea:focus {
     .modal-actions .primary-button,
     .modal-actions .ghost-button {
         width: 100%;
+    }
+
+    .table-toolbar {
+        grid-template-columns: 1fr;
     }
 
     .toast-container {

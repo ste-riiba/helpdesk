@@ -29,10 +29,9 @@ public class TicketController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/admin/tickets")
-    public ResponseEntity<List<TicketResponse>> findAllTickets() {
-        List<TicketResponse> tickets = ticketService.findAll();
-
+    @GetMapping("/agent/tickets")
+    public ResponseEntity<List<TicketResponse>> findTicketsForAgents() {
+        List<TicketResponse> tickets = ticketService.findTicketsForAgents();
         return ResponseEntity.ok(tickets);
     }
 
@@ -51,6 +50,13 @@ public class TicketController {
     @PutMapping("/agent/tickets/{ticketId}/assign-to-me")
     public ResponseEntity<TicketResponse> assignToMe(@PathVariable @Positive Integer ticketId) {
         TicketResponse response = ticketService.assignToMe(ticketId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/agent/tickets/{ticketId}/release")
+    public ResponseEntity<TicketResponse> releaseAssignment(@PathVariable @Positive Integer ticketId) {
+        TicketResponse response = ticketService.releaseAssignment(ticketId);
 
         return ResponseEntity.ok(response);
     }

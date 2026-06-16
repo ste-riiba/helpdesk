@@ -16,12 +16,11 @@ import java.util.List;
 public class CommentController {
     private final CommentService commentService;
 
-
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
 
     }
-    
+
     @GetMapping("/tickets/{ticketId}/comments")
     public ResponseEntity<List<CommentResponse>> findAllCommentsByTicketId(@PathVariable @Positive Integer ticketId) {
         List<CommentResponse> response = commentService.findAllByTicketId(ticketId);

@@ -93,6 +93,21 @@ public class ActivityLogService {
         return activityLogRepository.save(activityLog);
     }
 
+    public ActivityLog logTicketReleased(Ticket ticket, User author) {
+        validateTicket(ticket);
+        validateUser(author);
+
+        ActivityLog activityLog = logTicketActivity(
+                author,
+                ticket,
+                ActivityLogType.TICKET_RELEASED,
+                "Ticket released",
+                author.getEmail() + " released ticket #" + ticket.getId()
+        );
+
+        return activityLogRepository.save(activityLog);
+    }
+
     public ActivityLog logTicketStatusChanged(Ticket ticket, User author, TicketStatus oldStatus, TicketStatus newStatus) {
         validateTicket(ticket);
         validateUser(author);

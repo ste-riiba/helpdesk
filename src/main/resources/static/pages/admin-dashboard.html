@@ -18,8 +18,8 @@
 
     <nav class="top-nav" aria-label="Navigazione admin">
         <a href="#overview">Overview</a>
-        <a href="#tickets">Ticket</a>
-        <a href="#users">Utenti</a>
+        <a href="tickets.html">Ticket</a>
+        <a href="users.html">Utenti</a>
         <a href="#activity">Attivita</a>
     </nav>
 
@@ -37,8 +37,8 @@
         </div>
 
         <div class="admin-actions" aria-label="Azioni rapide">
-            <a class="primary-button button-link" href="#tickets">Gestisci ticket</a>
-            <a class="secondary-button" href="#users">Gestisci utenti</a>
+            <a class="primary-button button-link" href="tickets.html">Gestisci ticket</a>
+            <a class="secondary-button" href="users.html">Gestisci utenti</a>
         </div>
     </section>
 
@@ -76,7 +76,10 @@
                 <p>Vista operativa per priorità, stato e assegnazione.</p>
             </div>
 
-            <span class="table-count"><span id="ticket-table-count">0</span>&nbsp;ticket</span>
+            <div class="section-actions">
+                <span class="table-count"><span id="ticket-table-count">0</span>&nbsp;ticket</span>
+                <a class="secondary-button" href="tickets.html">Vedi tutti</a>
+            </div>
         </div>
 
         <div class="admin-table-wrap admin-table-scroll">
@@ -110,7 +113,7 @@
 
             <div class="section-actions">
                 <span class="table-count"><span id="user-table-count">0</span>&nbsp;utenti</span>
-                <button id="open-create-user-modal" class="secondary-button" type="button">Nuovo utente</button>
+                <a class="secondary-button" href="users.html">Gestisci utenti</a>
             </div>
         </div>
 
@@ -151,75 +154,6 @@
         </ol>
     </section>
 </main>
-
-<div id="create-user-modal" class="modal-overlay" aria-hidden="true">
-    <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="create-user-title">
-        <div class="modal-header">
-            <div>
-                <p class="eyebrow">Nuovo account</p>
-                <h2 id="create-user-title">Crea utente</h2>
-            </div>
-            <button class="modal-close" type="button" data-modal-close aria-label="Chiudi modal">&times;</button>
-        </div>
-
-        <form id="create-user-form" class="modal-form">
-            <div class="form-row">
-                <div class="field-group">
-                    <label for="first-name">Nome</label>
-                    <input id="first-name" name="firstName" type="text" maxlength="100" placeholder="Mario" required>
-                </div>
-
-                <div class="field-group">
-                    <label for="last-name">Cognome</label>
-                    <input id="last-name" name="lastName" type="text" maxlength="100" placeholder="Rossi" required>
-                </div>
-            </div>
-
-            <div class="field-group">
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" placeholder="mario.rossi@email.com" required>
-            </div>
-
-            <div class="form-row">
-                <div class="field-group">
-                    <label for="role">Ruolo</label>
-                    <select id="role" name="role" required>
-                        <option value="CUSTOMER">Customer</option>
-                        <option value="AGENT">Agent</option>
-                        <option value="ADMIN">Admin</option>
-                    </select>
-                </div>
-
-                <div class="field-group">
-                    <label for="status">Stato</label>
-                    <select id="status" name="status" required>
-                        <option value="ACTIVE">Attivo</option>
-                        <option value="PENDING">In attesa</option>
-                        <option value="DISABLED">Disabilitato</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="field-group">
-                    <label for="password">Password</label>
-                    <input id="password" name="password" type="password" minlength="8" maxlength="30" required>
-                </div>
-
-                <div class="field-group">
-                    <label for="confirm-password">Conferma password</label>
-                    <input id="confirm-password" name="confirmPassword" type="password" minlength="8" maxlength="30"
-                           required>
-                </div>
-            </div>
-
-            <div class="modal-actions">
-                <button class="ghost-button" type="button" data-modal-close>Annulla</button>
-                <button id="create-user" class="primary-button" type="submit">Crea utente</button>
-            </div>
-        </form>
-    </section>
-</div>
 
 <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 <script type="module" src="../js/admin-dashboard.js"></script>

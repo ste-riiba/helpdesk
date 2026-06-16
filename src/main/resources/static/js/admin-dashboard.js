@@ -2,11 +2,6 @@ import {getToken, logout} from "./auth-utils.js";
 import {showToast} from "./toast.js";
 
 const logoutBtn = document.querySelector(".logout-btn");
-const createUserBtn = document.querySelector("#open-create-user-modal");
-const createUserModal = document.querySelector("#create-user-modal");
-const createUserForm = document.querySelector("#create-user-form");
-const closeModalBtns = document.querySelectorAll("[data-modal-close]");
-const createUserModalBtn = document.querySelector("#create-user");
 const ticketTableBody = document.querySelector("#admin-ticket-table-body");
 const userTableBody = document.querySelector("#admin-user-table-body");
 const ticketTableCount = document.querySelector("#ticket-table-count");
@@ -17,89 +12,10 @@ if (!sessionStorage.getItem("token") || sessionStorage.getItem("userRole") !== "
     window.location.replace("/index.html");
 }
 
-createUserBtn?.addEventListener("click", openModal);
-
-closeModalBtns.forEach((button) => {
-    button.addEventListener("click", closeModal);
-});
-
-createUserModal?.addEventListener("click", (event) => {
-    if (event.target === createUserModal) {
-        closeModal();
-    }
-});
-
-createUserForm?.addEventListener("submit", createNewUser);
-
 logoutBtn?.addEventListener("click", (event) => {
     event.preventDefault();
     logout();
 });
-
-document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && createUserModal?.classList.contains("is-open")) {
-        closeModal();
-    }
-});
-
-function openModal() {
-    createUserModal?.classList.add("is-open");
-    createUserModal?.setAttribute("aria-hidden", "false");
-    document.querySelector("#first-name")?.focus();
-}
-
-function closeModal() {
-    createUserModal?.classList.remove("is-open");
-    createUserModal?.setAttribute("aria-hidden", "true");
-    createUserForm?.reset();
-}
-
-async function createNewUser(e) {
-    e.preventDefault();
-
-    const formData = new FormData(createUserForm);
-    const token = getToken();
-
-    if (!token) {
-        return;
-    }
-
-    createUserModalBtn.disabled = true;
-
-    const newUser = {
-        firstName: formData.get("firstName"),
-        lastName: formData.get("lastName"),
-        email: formData.get("email"),
-        role: formData.get("role"),
-        status: formData.get("status"),
-        password: formData.get("password"),
-        confirmPassword: formData.get("confirmPassword")
-    };
-
-    try {
-        const response = await fetch("/api/v1/admin/users", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify(newUser)
-        });
-
-        if (!response.ok) {
-            throw new Error("Controlla i dati inseriti e riprova.");
-        }
-
-        createUserForm.reset();
-        closeModal();
-        showToast("success", "Utente creato", "Il nuovo account e stato aggiunto correttamente.");
-        await loadDashboardData();
-    } catch (error) {
-        showToast("error", "Utente non creato", error.message);
-    } finally {
-        createUserModalBtn.disabled = false;
-    }
-}
 
 async function loadDashboardData() {
     const openedTicketEl = document.querySelector("#num-opened-tickets");
@@ -121,7 +37,7 @@ async function loadDashboardData() {
             "Authorization": `Bearer ${token}`
         };
 
-        const ticketResponse = await fetch("/api/v1/admin/tickets", {
+        const ticketResponse = await fetch("/api/v1/agent/tickets", {
             method: "GET",
             headers
         });
@@ -211,7 +127,7 @@ function renderTicketTable(tickets) {
         return;
     }
 
-    ticketTableBody.innerHTML = manageableTickets.map((ticket) => {
+    ticketTableBody.innerHTML = manageableTickets.slice(0, 5).map((ticket) => {
         const ticketId = ticket.id ?? ticket.ticketId ?? "";
         const title = ticket.title ?? ticket.subject ?? "Ticket senza titolo";
         const requester = getRequesterName(ticket);
@@ -255,7 +171,7 @@ function renderUserTable(users) {
         return;
     }
 
-    userTableBody.innerHTML = users.map((user) => {
+    userTableBody.innerHTML = users.slice(0, 5).map((user) => {
         const fullName = getFullName(user);
         const email = user.email ?? "-";
         const role = user.role ?? "-";

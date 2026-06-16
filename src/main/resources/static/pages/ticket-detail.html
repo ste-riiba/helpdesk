@@ -17,8 +17,8 @@
     </a>
 
     <nav class="top-nav" aria-label="Navigazione ticket">
-        <a href="admin-dashboard.html#tickets">Ticket</a>
-        <a href="admin-dashboard.html#users">Utenti</a>
+        <a href="tickets.html">Ticket</a>
+        <a id="users-nav-link" href="users.html">Utenti</a>
         <a href="admin-dashboard.html#activity">Attivita</a>
     </nav>
 
@@ -36,6 +36,7 @@
 
             <div class="ticket-detail-actions" aria-label="Azioni ticket">
                 <button id="assign-ticket-btn" class="secondary-button" type="button" disabled>Assegna a me</button>
+                <button id="release-ticket-btn" class="secondary-button" type="button" disabled>Rilascia</button>
                 <div class="ticket-status-action">
                     <label for="ticket-status-select">Stato</label>
                     <select id="ticket-status-select">
