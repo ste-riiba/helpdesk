@@ -15,3 +15,14 @@ export function logout() {
     sessionStorage.removeItem("userRole");
     window.location.replace("/pages/login.html");
 }
+
+export function getRole() {
+    const role = sessionStorage.getItem("userRole");
+
+    if (!role) {
+        window.location.replace("/pages/login.html");
+        return null;
+    }
+
+    return role;
+}

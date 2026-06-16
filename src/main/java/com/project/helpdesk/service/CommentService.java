@@ -3,10 +3,7 @@ package com.project.helpdesk.service;
 import com.project.helpdesk.dto.request.CommentCreateRequest;
 import com.project.helpdesk.dto.request.CommentUpdateRequest;
 import com.project.helpdesk.dto.response.CommentResponse;
-import com.project.helpdesk.entity.Comment;
-import com.project.helpdesk.entity.Ticket;
-import com.project.helpdesk.entity.User;
-import com.project.helpdesk.entity.UserRole;
+import com.project.helpdesk.entity.*;
 import com.project.helpdesk.exception.ForbiddenActionException;
 import com.project.helpdesk.repository.CommentRepository;
 import com.project.helpdesk.repository.TicketRepository;
@@ -52,7 +49,25 @@ public class CommentService {
             throw new IllegalArgumentException("CommentCreateRequest can't be null");
         }
 
-        Comment comment = commentRepository.save(toEntity(ticketId, request));
+        User current = currentUserService.getCurrentUser();
+
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found with ID: " + ticketId));
+
+        if (ticket.getStatus() == TicketStatus.CLOSED || ticket.getStatus() == TicketStatus.RESOLVED) {
+            throw new ForbiddenActionException("You can't leave a comment on this ticket");
+        }
+
+        boolean isAdmin = current.getRole() == UserRole.ADMIN;
+        boolean isAuthor = ticket.getAuthor().getId().equals(current.getId());
+        boolean isAssignedAgent = ticket.getAgent() != null
+                && ticket.getAgent().getId().equals(current.getId());
+
+        if (!isAdmin && !isAuthor && !isAssignedAgent) {
+            throw new ForbiddenActionException("You can't leave a comment on this ticket");
+        }
+
+        Comment comment = commentRepository.save(toEntity(ticket, request));
 
         return toResponse(comment);
     }
@@ -86,7 +101,21 @@ public class CommentService {
     public List<CommentResponse> findAllByTicketId(Integer id) {
         validateId(id);
 
-        ticketRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Ticket not found with ID: " + id));
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found with ID: " + id));
+
+        User current = currentUserService.getCurrentUser();
+
+        boolean isAdmin = current.getRole() == UserRole.ADMIN;
+        boolean isAuthor = ticket.getAuthor().getId().equals(current.getId());
+        boolean isAssignedAgent = ticket.getAgent() != null
+                && ticket.getAgent().getId().equals(current.getId());
+        boolean isOpenTicketForAgent = current.getRole() == UserRole.AGENT
+                && ticket.getStatus() == TicketStatus.OPEN;
+
+        if (!isAdmin && !isAuthor && !isAssignedAgent && !isOpenTicketForAgent) {
+            throw new ForbiddenActionException("You don't have permission to complete this action");
+        }
 
         List<Comment> comments = commentRepository.findAllByTicket_Id(id);
 
@@ -119,10 +148,7 @@ public class CommentService {
     }
 
     //    Helpers
-    private Comment toEntity(Integer ticketId, CommentCreateRequest request) {
-        Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new EntityNotFoundException("Ticket not found with ID: " + ticketId));
-
+    private Comment toEntity(Ticket ticket, CommentCreateRequest request) {
         User author = currentUserService.getCurrentUser();
         return Comment.builder().content(request.content()).ticket(ticket).author(author).build();
     }

@@ -121,10 +121,24 @@
     </section>
 
     <section class="ticket-board" id="tickets" aria-labelledby="ticket-board-title">
-        <div class="section-heading">
-            <p class="eyebrow">Ticket recenti</p>
-            <h2 id="ticket-board-title">Le tue richieste</h2>
-            <p>Uno spazio pronto per mostrare lo stato delle richieste quando collegherai i dati.</p>
+        <div class="section-heading-row">
+            <div class="section-heading">
+                <p class="eyebrow">Ticket recenti</p>
+                <h2 id="ticket-board-title">Le tue richieste</h2>
+                <p>I ticket piu recenti sono mostrati per primi.</p>
+            </div>
+
+            <div class="ticket-filter">
+                <label for="ticket-status-filter">Stato</label>
+                <select id="ticket-status-filter">
+                    <option value="">Tutti</option>
+                    <option value="OPEN">Aperti</option>
+                    <option value="IN_PROGRESS">In lavorazione</option>
+                    <option value="WAITING_FOR_CUSTOMER">In attesa cliente</option>
+                    <option value="RESOLVED">Risolti</option>
+                    <option value="CLOSED">Chiusi</option>
+                </select>
+            </div>
         </div>
 
         <div class="ticket-list">

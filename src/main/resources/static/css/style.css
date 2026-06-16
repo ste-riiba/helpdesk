@@ -117,6 +117,14 @@ textarea:focus {
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
 }
 
+input:disabled,
+select:disabled,
+textarea:disabled {
+    color: var(--muted);
+    background: #edf2f7;
+    cursor: not-allowed;
+}
+
 .primary-button {
     height: 48px;
     border: 0;
@@ -138,7 +146,7 @@ textarea:focus {
 }
 
 .primary-button:disabled {
-    cursor: wait;
+    cursor: not-allowed;
     opacity: 0.7;
 }
 
@@ -483,6 +491,12 @@ textarea:focus {
     font-size: 22px;
 }
 
+.ticket-filter {
+    display: grid;
+    gap: 8px;
+    min-width: 220px;
+}
+
 .ticket-form {
     display: grid;
     gap: 18px;
@@ -556,6 +570,17 @@ textarea:focus {
 .ticket-item {
     display: grid;
     gap: 12px;
+}
+
+.clickable-ticket {
+    cursor: pointer;
+    transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.clickable-ticket:hover {
+    border-color: rgba(37, 99, 235, 0.38);
+    box-shadow: 0 18px 42px rgba(21, 32, 52, 0.12);
+    transform: translateY(-1px);
 }
 
 .ticket-item-header {
@@ -886,16 +911,45 @@ textarea:focus {
 }
 
 .row-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(74px, 1fr));
+    gap: 6px;
+    width: 100%;
 }
 
 .row-actions .ghost-button,
 .row-actions .secondary-button {
+    width: 100%;
     min-height: 34px;
-    padding: 0 10px;
+    padding: 0 8px;
     font-size: 12px;
+    white-space: nowrap;
+}
+
+.users-table {
+    table-layout: fixed;
+}
+
+.users-table th:nth-child(1),
+.users-table td:nth-child(1) {
+    width: 24%;
+}
+
+.users-table th:nth-child(2),
+.users-table td:nth-child(2) {
+    width: 32%;
+}
+
+.users-table th:nth-child(3),
+.users-table td:nth-child(3),
+.users-table th:nth-child(4),
+.users-table td:nth-child(4) {
+    width: 14%;
+}
+
+.users-table th:nth-child(5),
+.users-table td:nth-child(5) {
+    width: 16%;
 }
 
 .activity-list {
@@ -966,15 +1020,24 @@ textarea:focus {
 }
 
 .ticket-detail-actions {
-    display: grid;
-    grid-template-columns: auto minmax(180px, 220px) auto;
+    display: flex;
     align-items: end;
+    flex-wrap: wrap;
     gap: 12px;
+    justify-content: flex-end;
+}
+
+.ticket-detail-actions .primary-button,
+.ticket-detail-actions .secondary-button {
+    flex: 0 0 150px;
+    height: 48px;
+    padding: 0 14px;
 }
 
 .ticket-status-action {
     display: grid;
     gap: 8px;
+    flex: 0 0 220px;
 }
 
 .ticket-status-action label {
@@ -1247,8 +1310,14 @@ textarea:focus {
     }
 
     .ticket-detail-actions {
-        grid-template-columns: 1fr;
+        justify-content: flex-start;
         width: 100%;
+    }
+
+    .ticket-detail-actions .primary-button,
+    .ticket-detail-actions .secondary-button,
+    .ticket-status-action {
+        flex: 1 1 180px;
     }
 
     .ticket-detail-meta {

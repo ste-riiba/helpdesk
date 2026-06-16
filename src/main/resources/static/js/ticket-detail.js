@@ -1,7 +1,7 @@
 import {getToken, logout} from "./auth-utils.js";
 import {showToast} from "./toast.js";
 
-const allowedRoles = ["ADMIN", "AGENT"];
+const allowedRoles = ["ADMIN", "AGENT", "CUSTOMER"];
 const userRole = sessionStorage.getItem("userRole");
 
 if (!sessionStorage.getItem("token") || !allowedRoles.includes(userRole)) {
@@ -22,6 +22,12 @@ const commentList = document.querySelector("#comment-list");
 
 if (userRole !== "ADMIN") {
     usersNavLink?.remove();
+}
+
+if (userRole === "CUSTOMER") {
+    document.querySelector(".brand-link")?.setAttribute("href", "/index.html");
+    document.querySelector(".top-nav")?.remove();
+    document.querySelector(".ticket-detail-actions")?.remove();
 }
 
 logoutBtn?.addEventListener("click", (event) => {
@@ -52,10 +58,21 @@ async function loadTicketDetail() {
             "Authorization": `Bearer ${token}`
         };
 
-        const ticketResponse = await fetch(`/api/v1/agent/tickets/${ticketId}`, {
+        const ticketResponse = await fetch(getTicketDetailUrl(), {
             method: "GET",
             headers
         });
+
+        if (!ticketResponse.ok) {
+            throw new Error(await getErrorMessage(ticketResponse, "Errore nel caricare il ticket."));
+        }
+
+        const ticketData = await ticketResponse.json();
+        const ticket = getTicketFromResponse(ticketData);
+
+        if (!ticket) {
+            throw new Error("Ticket non trovato tra le tue richieste.");
+        }
 
         const commentsResponse = await fetch(`/api/v1/tickets/${ticketId}/comments`, {
             method: "GET",
@@ -67,10 +84,6 @@ async function loadTicketDetail() {
             headers
         });
 
-        if (!ticketResponse.ok) {
-            throw new Error(await getErrorMessage(ticketResponse, "Errore nel caricare il ticket."));
-        }
-
         if (!commentsResponse.ok) {
             throw new Error(await getErrorMessage(commentsResponse, "Errore nel caricare i commenti."));
         }
@@ -79,7 +92,6 @@ async function loadTicketDetail() {
             throw new Error(await getErrorMessage(currentUserResponse, "Errore nel caricare il profilo."));
         }
 
-        const ticket = await ticketResponse.json();
         const comments = await commentsResponse.json();
         const currentUser = await currentUserResponse.json();
 
@@ -234,8 +246,13 @@ function renderTicket(ticket, currentUser) {
     document.querySelector("#ticket-agent").textContent = ticket.agentFullName ?? "Non assegnato";
     document.querySelector("#ticket-created-at").textContent = formatDate(ticket.createdAt);
 
-    statusSelect.value = ticket.status ?? "OPEN";
-    updateStatusBtn.disabled = false;
+    if (statusSelect) {
+        statusSelect.value = ticket.status ?? "OPEN";
+    }
+
+    if (updateStatusBtn) {
+        updateStatusBtn.disabled = false;
+    }
 
     const statusPill = document.querySelector("#ticket-status-pill");
     statusPill.className = `pill ${getStatusClass(ticket.status)}`;
@@ -245,13 +262,49 @@ function renderTicket(ticket, currentUser) {
     priorityPill.className = `pill ${getPriorityClass(ticket.priority)}`;
     priorityPill.textContent = formatLabel(ticket.priority ?? "-");
 
-    const isClosed = ticket.status === "CLOSED" || ticket.status === "RESOLVED";
-    const isAssigned = Boolean(ticket.agentId);
-    const isAssignedToCurrentUser = ticket.agentId === currentUser.id;
-    const isAdmin = currentUser.role === "ADMIN";
+    updateCommentFormState(ticket);
 
-    assignTicketBtn.disabled = isAssigned || ticket.status !== "OPEN";
-    releaseTicketBtn.disabled = !isAssigned || isClosed || (!isAdmin && !isAssignedToCurrentUser);
+    if (currentUser.role !== "CUSTOMER") {
+        const isClosed = ticket.status === "CLOSED" || ticket.status === "RESOLVED";
+        const isAssigned = Boolean(ticket.agentId);
+        const isAssignedToCurrentUser = ticket.agentId === currentUser.id;
+        const isAdmin = currentUser.role === "ADMIN";
+
+        assignTicketBtn.disabled = isAssigned || ticket.status !== "OPEN";
+        releaseTicketBtn.disabled = !isAssigned || isClosed || (!isAdmin && !isAssignedToCurrentUser);
+    }
+}
+
+function updateCommentFormState(ticket) {
+    const isCommentLocked = ticket.status === "CLOSED" || ticket.status === "RESOLVED";
+    const commentTextarea = commentForm?.querySelector("textarea");
+    const helperText = commentForm?.querySelector(".form-footer p");
+
+    if (!commentTextarea || !createCommentBtn || !helperText) {
+        return;
+    }
+
+    commentTextarea.disabled = isCommentLocked;
+    createCommentBtn.disabled = isCommentLocked;
+    helperText.textContent = isCommentLocked
+        ? "Il ticket e chiuso o risolto: non e possibile aggiungere commenti."
+        : "Massimo 1000 caratteri.";
+}
+
+function getTicketDetailUrl() {
+    if (userRole === "CUSTOMER") {
+        return "/api/v1/tickets";
+    }
+
+    return `/api/v1/agent/tickets/${ticketId}`;
+}
+
+function getTicketFromResponse(ticketData) {
+    if (!Array.isArray(ticketData)) {
+        return ticketData;
+    }
+
+    return ticketData.find((ticket) => String(ticket.id) === String(ticketId));
 }
 
 function renderComments(comments) {

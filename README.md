@@ -20,6 +20,29 @@ Il progetto include una prima modellazione con utenti, ticket e commenti, usando
 
 Per l'esecuzione locale serve un database MariaDB/MySQL chiamato `helpdesk_db`.
 
+## Database con Docker
+
+Avvia MySQL con Docker Compose usando il file `compose.yaml`:
+
+```bash
+docker compose up -d
+```
+
+Il servizio MySQL viene esposto su `localhost:3307` e crea il database `helpdesk_db`.
+
+Configura l'applicazione con queste variabili ambiente:
+
+```txt
+DB_URL=jdbc:mysql://localhost:3307/helpdesk_db
+DB_USERNAME=helpdesk_user
+DB_PASSWORD=helpdesk_password
+JWT_SECRET=change-this-secret
+```
+
+Poi avvia l'app Spring Boot da IntelliJ oppure con Maven.
+
+In alternativa puoi creare manualmente il database su un'istanza MySQL locale:
+
 ```sql
 CREATE DATABASE helpdesk_db;
 ```

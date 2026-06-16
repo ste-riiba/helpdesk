@@ -58,8 +58,20 @@ public class TicketService {
     public TicketResponse findById(Integer id) {
         validateId(id);
 
+        User current = currentUserService.getCurrentUser();
+
         Ticket existing = ticketRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ticket not found with ID: " + id));
+
+        boolean isOpenTicketForAgent = current.getRole() == UserRole.AGENT
+                && existing.getStatus() == TicketStatus.OPEN;
+        boolean isAuthor = current.getId().equals(existing.getAuthor().getId());
+        boolean isAdmin = current.getRole() == UserRole.ADMIN;
+        boolean isAssignedAgent = existing.getAgent() != null && current.getId().equals(existing.getAgent().getId());
+
+        if (!isAdmin && !isAuthor && !isAssignedAgent && !isOpenTicketForAgent) {
+            throw new ForbiddenActionException("You don't have permission to complete this action");
+        }
 
         return toResponse(existing);
     }
@@ -89,6 +101,10 @@ public class TicketService {
         }
 
         User author = currentUserService.getCurrentUser();
+
+        if (author.getRole() != UserRole.CUSTOMER) {
+            throw new ForbiddenActionException("Only customers can open tickets");
+        }
 
         Ticket ticket = toEntity(request);
         ticket.setAuthor(author);
