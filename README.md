@@ -1,87 +1,29 @@
 # Helpdesk
 
-Helpdesk e' un progetto Spring Boot nato per fare pratica con lo sviluppo di una piccola API REST.
+Applicazione Spring Boot per la gestione di ticket di supporto con API REST e interfaccia web.
 
-L'idea e' simulare un sistema semplice di assistenza: gli utenti possono aprire ticket, gli agenti possono prenderli in carico e i commenti permettono di seguire la conversazione fino alla risoluzione.
+## Funzionalità principali
+- **Autenticazione JWT** con 3 ruoli: `CUSTOMER`, `AGENT`, `ADMIN`
+- **Ticket**: creazione, assegnazione agenti, cambio stato (OPEN → IN_PROGRESS → WAITING_FOR_CUSTOMER → RESOLVED → CLOSED), commenti
+- **Utenti** (solo admin): CRUD, disabilitazione/riattivazione, profilo
+- **Activity log** per audit (solo admin)
+- **Frontend** integrato: dashboard, login, gestione ticket/utenti
 
-Il progetto include una prima modellazione con utenti, ticket e commenti, usando DTO, service layer, repository JPA, validazione e una configurazione base di Spring Security.
+## Stack
+Java 25, Spring Boot 4.0.6, Spring Data JPA, Spring Security, PostgreSQL 17, Lombok
 
-## Tecnologie
-
-- Java
-- Spring Boot
-- Spring Data JPA
-- Spring Security
-- Bean Validation
-- MariaDB/MySQL
-- Lombok
-
-## Note
-
-Per l'esecuzione locale serve un database MariaDB/MySQL chiamato `helpdesk_db`.
-
-## Database con Docker
-
-Avvia MySQL con Docker Compose usando il file `compose.yaml`:
+## Avvio con Docker
 
 ```bash
 docker compose up -d
 ```
 
-Il servizio MySQL viene esposto su `localhost:3307` e crea il database `helpdesk_db`.
+- App: http://localhost:8080
+- PostgreSQL: localhost:5432 (db: `helpdesk_db`, user: `stefano`, pass: `1234`)
 
-Configura l'applicazione con queste variabili ambiente:
+## Credenziali Admin (create automaticamente al primo avvio)
 
-```txt
-DB_URL=jdbc:mysql://localhost:3307/helpdesk_db
-DB_USERNAME=helpdesk_user
-DB_PASSWORD=helpdesk_password
-JWT_SECRET=change-this-secret
-```
+- **Email**: admin@helpdesk.com
+- **Password**: admin123
 
-Poi avvia l'app Spring Boot da IntelliJ oppure con Maven.
-
-In alternativa puoi creare manualmente il database su un'istanza MySQL locale:
-
-```sql
-CREATE DATABASE helpdesk_db;
-```
-
-Gli utenti non si registrano autonomamente: vengono creati da un amministratore tramite `POST /api/v1/admin/users`.
-
-## Autenticazione
-
-Il login usa JWT.
-
-Endpoint:
-
-```http
-POST /api/v1/auth/login
-```
-
-Body:
-
-```json
-{
-  "email": "admin@helpdesk.local",
-  "password": "Admin123!"
-}
-```
-
-Risposta:
-
-```json
-{
-  "token": "...",
-  "email": "admin@helpdesk.local",
-  "role": "ADMIN"
-}
-```
-
-Per chiamare API protette usare l'header:
-
-```http
-Authorization: Bearer <token>
-```
-
-Il frontend salva il token in `sessionStorage` e lo elimina al logout.
+Lo script `src/main/resources/db/init/01-init-admin.sql` viene eseguito automaticamente da PostgreSQL alla prima inizializzazione del database (volume vuoto).

@@ -7,7 +7,7 @@ services:
       - my-network
 
   postgres:
-    image: postgres:latest
+    image: postgres:17
     environment:
       POSTGRES_USER: stefano
       POSTGRES_PASSWORD: 1234
@@ -16,7 +16,13 @@ services:
       - "5432:5432"
     networks:
       - my-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./src/main/resources/db/init:/docker-entrypoint-initdb.d
 
 networks:
   my-network:
     driver: bridge
+
+volumes:
+  postgres-data:
