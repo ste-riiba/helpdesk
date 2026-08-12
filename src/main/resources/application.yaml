@@ -3,12 +3,12 @@ spring:
     name: helpdesk
 
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/helpdesk_db}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    url: jdbc:postgresql://postgres:5432/helpdesk_db
+    username: stefano
+    password: 1234
 
   jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     show-sql: true
@@ -23,5 +23,5 @@ helpdesk:
   registration:
     enabled: false
   jwt:
-    secret: ${JWT_SECRET:change-this-secret-in-production}
+    secret: change-this-secret-in-production
     expiration-seconds: 86400
