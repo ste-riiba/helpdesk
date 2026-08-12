@@ -14,8 +14,20 @@ Java 25, Spring Boot 4.0.6, Spring Data JPA, Spring Security, PostgreSQL 17, Lom
 
 ## Avvio con Docker
 
+Dopo aver clonato il repository, creare il JAR dell'applicazione:
+
 ```bash
-docker compose up -d
+.\mvnw.cmd clean package -DskipTests
+```
+Poi costruire l'immagine e avviare i container:
+
+```bash
+docker compose up --build
+```
+L'applicazione sarà disponibile su:
+
+```bash
+http://localhost:8080
 ```
 
 - App: http://localhost:8080
