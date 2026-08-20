@@ -1,4 +1,3 @@
-
 # Helpdesk System — REST API & Web Dashboard
 
 ![Java](https://img.shields.io/badge/Java-25-orange?style=for-the-badge&logo=java)
@@ -6,53 +5,53 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue?style=for-the-badge&logo=postgresql)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-blue?style=for-the-badge&logo=docker)
 
-Applicazione Full-Stack basata su Spring Boot per la gestione del ciclo di vita dei ticket di supporto tecnico, dotata di architettura RESTful, sicurezza avanzata e dashboard web integrata.
+A Full-Stack application powered by Spring Boot for IT support ticket lifecycle management, featuring RESTful architecture, advanced security, and an integrated web dashboard.
 
 ---
 
-## Funzionalità Principali
+## Key Features
 
-* **Autenticazione & Autorizzazione JWT:** Gestione delle sessioni stateless con permessi basati sui ruoli:
-  * `CUSTOMER`: Creazione ticket, tracciamento stato e inserimento commenti.
-  * `AGENT`: Presa in carico, aggiornamento dello stato e gestione del supporto.
-  * `ADMIN`: Gestione utenti (CRUD, attivazione/disattivazione), auditing e log delle attività.
-* **Ciclo di Vita del Ticket:**
+* **JWT Authentication & Authorization:** Stateless session management with Role-Based Access Control (RBAC):
+  * `CUSTOMER`: Ticket creation, status tracking, and commenting.
+  * `AGENT`: Ticket assignment, status updates, and support management.
+  * `ADMIN`: Full user management (CRUD, enable/disable), auditing, and activity logs.
+* **Ticket Lifecycle Flow:**
   `OPEN` ➔ `IN_PROGRESS` ➔ `WAITING_FOR_CUSTOMER` ➔ `RESOLVED` ➔ `CLOSED`
-* **Audit & Activity Logging:** Registrazione automatica delle azioni critiche eseguite dagli utenti a scopo di sicurezza e controllo.
-* **Frontend Integrato:** Interfaccia web nativa per la gestione rapida di login, dashboard e tabelle dati.
+* **Audit & Activity Logging:** Automatic tracking of critical user actions for security and compliance.
+* **Integrated Frontend:** Web-based interface for streamlined login, dashboard management, and data tables.
 
 ---
 
-## Stack Tecnologico
+## Tech Stack
 
-* **Backend:** Java 25, Spring Boot 4, Spring Data JPA, Spring Security (JWT)
+* **Backend:** Java 25, Spring Boot 4.0.6, Spring Data JPA, Spring Security (JWT)
 * **Database:** PostgreSQL 17
 * **DevOps & Tools:** Docker, Docker Compose, Maven, Lombok
 
 ---
 
-## API Reference Principale
+## Core API Reference
 
-| Metodo | Endpoint | Descrizione | Accesso |
+| Method | Endpoint | Description | Access Level |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/auth/login` | Autenticazione e generazione JWT | Pubblico |
-| `GET` | `/api/v1/tickets` | Lista ticket (filtrata per ruolo) | Tutti i ruoli |
-| `POST` | `/api/v1/tickets` | Creazione di un nuovo ticket | `CUSTOMER` |
-| `PATCH` | `/api/v1/tickets/{id}/status` | Aggiornamento dello stato del ticket | `AGENT` / `ADMIN` |
-| `GET` | `/api/v1/admin/users` | Gestione completa degli utenti | `ADMIN` |
-| `GET` | `/api/v1/admin/logs` | Consultazione dell'Activity Log | `ADMIN` |
+| `POST` | `/api/v1/auth/login` | User authentication & JWT generation | Public |
+| `GET` | `/api/v1/tickets` | List tickets (filtered by role) | All Roles |
+| `POST` | `/api/v1/tickets` | Create a new ticket | `CUSTOMER` |
+| `PATCH` | `/api/v1/tickets/{id}/status` | Update ticket status | `AGENT` / `ADMIN` |
+| `GET` | `/api/v1/admin/users` | Full user management | `ADMIN` |
+| `GET` | `/api/v1/admin/logs` | View activity audit logs | `ADMIN` |
 
 ---
 
-## Architettura Database (ER)
+## Database Architecture (ER Diagram)
 
 ```mermaid
 erDiagram
-    USERS ||--o{ TICKETS : "crea (CUSTOMER)"
-    USERS ||--o{ TICKETS : "gestisce (AGENT)"
-    USERS ||--o{ COMMENTS : "scrive"
-    TICKETS ||--o{ COMMENTS : "contiene"
-    USERS ||--o{ AUDIT_LOGS : "genera"
+    USERS ||--o{ TICKETS : "creates (CUSTOMER)"
+    USERS ||--o{ TICKETS : "manages (AGENT)"
+    USERS ||--o{ COMMENTS : "writes"
+    TICKETS ||--o{ COMMENTS : "contains"
+    USERS ||--o{ AUDIT_LOGS : "generates"
 
     USERS {
         Long id PK
@@ -73,59 +72,39 @@ erDiagram
 
 ```
 
-## Avvio Rapido con Docker
+---
 
-### 1. Compilazione dell'applicazione
+## Quick Start with Docker
 
-Genera il file JAR eseguibile saltando i test temporaneamente:
+### 1. Build the Application
 
-  
+Generate the executable JAR file while temporarily skipping tests:
 
-Bash
-
-```
+```bash
 ./mvnw clean package -DskipTests
 
 ```
 
-_(Su Windows usa `.\mvnw.cmd clean package -DskipTests`)_
+*(On Windows, run `.\mvnw.cmd clean package -DskipTests`)*
 
-  
+### 2. Launch Containers
 
-### 2. Avvio dei Container
-
-Bash
-
-```
+```bash
 docker compose up --build -d
 
 ```
 
-L'applicazione e il database saranno operativi ai seguenti indirizzi:
+The application and database will be accessible at:
 
-  
+* **Web App & REST API:** `http://localhost:8080`
+* **PostgreSQL Database:** `localhost:5432` *(DB: `helpdesk_db`, User: `stefano`)*
 
--   **Web App & REST API:** `http://localhost:8080`
-    
-      
-    
--   **PostgreSQL Database:** `localhost:5432` _(DB: `helpdesk_db`, User: `stefano`)_
-    
-      
-    
+---
 
-## Credenziali di Test (Default Admin)
+## Test Credentials (Default Admin)
 
-Al primo avvio, il database viene popolato automaticamente tramite lo script `01-init-admin.sql`:
+Upon initial startup, the database is automatically seeded via the `01-init-admin.sql` script:
 
-  
-
--   **Email:** `admin@helpdesk.com`
-    
-      
-    
--   **Password:** `admin123`
-    
-      
-    
--   **Ruolo:** `ADMIN`
+* **Email:** `admin@helpdesk.com`
+* **Password:** `admin123`
+* **Role:** `ADMIN`
